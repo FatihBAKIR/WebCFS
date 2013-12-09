@@ -1,0 +1,486 @@
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.png">
+
+    <title>Cloud File System</title>
+
+    <script src="js/API.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/handlebars.min.js"></script>
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/jumbotron-narrow.css" rel="stylesheet">
+    <link href="css/files.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <ul class="nav nav-pills pull-right">
+                <li class="active"><a href="#">Web CFS</a></li>
+                <li id="lo" style="display: none"><a href="#" onclick="LO()">Logout</a></li>
+            </ul>
+            <h3 class="text-muted">Cloud File System</h3>
+        </div>
+        
+        <div class="jumbotron" id="intro">
+        <h1>Personal Cloud File Storage</h1>
+        <p class="lead">A Minimalist, Secure And Personal File Storage Service Which Only Needs PHP!</p>
+        <p><a class="btn btn-lg btn-success" href="#" onclick="login()">Log In</a> <a class="btn btn-lg btn-success" onclick="signUp()">Sign Up</a></p>
+      </div>
+
+        <div id="webCFS" class="panel panel-default" style="display: none">
+            <div class="panel-heading">Your CFS</div>
+            <div class="panel-body" style="font-weight: bold">Last File</div>
+            <table id="last" class="table"></table>
+            <div class="panel-body" style="font-weight: bold; background-color: #fcf8e3"><div id="dir-title" style="float: left; vertical-align: bottom"></div> 
+            <div style="float: right"><button onclick="MvD()" type="button" class="btn btn-success btn-sm" data-dismiss="modal"><span class="glyphicon glyphicon-move"></span> Move Buffer Here</button></div></div>
+            <table id="list" class="table"></table>
+        </div>
+
+        <div class="footer">
+            <p>&copy; Fatih BAKIR</p>
+            <p><a class="btn btn-lg btn-primary" href="https://github.com/FatihBAKIR/CFS"><img src="http://www.iconsdb.com/icons/preview/white/github-9-xxl.png" width="28px" /> Desktop Client Source</a>
+            <a class="btn btn-lg btn-primary" href="http://indir.fatihbakir.net/dosya/210/CFSWin-zip"><img src="https://cdn1.iconfinder.com/data/icons/ourea-icons/256/OS_Windows_8_256x256-32.png" width="28px" /> Windows Client</a></p>
+        </div>
+
+    </div> <!-- /container -->
+
+    <div id="loginModal" class="modal"></div>
+    <div id="signupModal" class="modal"></div>
+    <div id="infoModal" class="modal"></div>
+
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+    </body>
+    </html>
+    <script type="text/javascript">
+    function getUrlVars() {
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+    function login()
+    {
+        $('#loginModal').modal('show');
+        $(document.body).on('click', "#loginBTN", function() {
+            LogIn($("#user").val(), $("#pass").val(), function(data)
+            {
+                if (data.result == "success")
+                {
+                    $('#loginModal').modal('hide');
+                    $("#user").val("");
+                    $("#pass").val("");
+                    sHash = data.sessionHash;
+                    window.history.pushState("loggedin", "Title", "index.html?s=" + sHash);
+                    Ready();
+                }
+            })
+        });
+    }
+    
+    function signUp()
+    {
+        $('#signupModal').modal('show');
+        $(document.body).on('click', "#signupBTN", function() {
+            SignUp($("#suser").val(), $("#spass").val(), $("#semail").val(), function(data)
+            {
+                if (data.result == "success")
+                {
+                    $('#signupModal').modal('hide');
+                    $("#suser").val("");
+                    $("#spass").val("");
+                    $("#smail").val("");
+                    login();
+                }
+                else
+                {
+                    alert("error");
+                }
+            })
+        });
+    }
+    
+    var curDir = 0;
+    var dtemplate, ftemplate, btemplate, lftemplate, itemplate, fstemplate;
+    $(function() {
+        $("#loginModal").load("login.html");
+        $("#signupModal").load("signup.html");
+        LoadTemplates();
+        if (getUrlVars()["s"] != null)
+        {
+            sHash = getUrlVars()["s"];
+            Ready();
+        }
+    });
+    function Ready()
+    {
+        $("#intro").fadeOut("slow", function()
+        {
+           $("#webCFS").fadeIn("fast"); 
+        });
+        if (getUrlVars()["dir"] != null)
+            Ls(getUrlVars()["dir"]);
+        else
+            Ls(0);
+        LastFile(sHash, function(data)
+        {
+            $("#last").html("");
+            $("#last").append(lftemplate(data.file));
+        });
+        $("#lo").slideDown();
+    }
+
+    var sHash;
+    function LoadTemplates() {
+        ftemplate = Handlebars.compile($("#file-template").html());
+        lftemplate = Handlebars.compile($("#last-file-template").html());
+        dtemplate = Handlebars.compile($("#dir-template").html());
+        itemplate = Handlebars.compile($("#file-info-template").html());
+        fstemplate = Handlebars.compile($("#file-stats-template").html());
+        btemplate = $("#base-template").html();
+    }
+
+    function Recieve(data)
+    {
+        LoadTemplates();
+        $("#list").html(btemplate);
+        if (data.result === "success")
+        {
+            curDir = data.dir.id;
+            $("#dir-title").html(data.dir.isim);
+            if (data.dirs.length > 0)
+                $("#list").append(dtemplate(data));
+            if (data.files.length > 0)
+                $("#list").append(ftemplate(data));
+            window.history.pushState("dir" + data.dir.id, "Title", "index.html?s=" + sHash + "&dir=" + data.dir.id);
+            for (i = 0; i < buffer.length; i++) {
+                Mv(buffer[i]);
+            }
+            for (i = 0; i < dirbuffer.length; i++) {
+                MvDir(dirbuffer[i]);
+            }
+        }
+
+    }
+
+    function RefreshFile(data)
+    {
+        $("#fl" + data.id).fadeOut("slow", function()
+        {
+            $("#fl" + data.id).remove();
+            $("#list").append(ftemplate({files: [data]}));
+        });
+    }
+
+    function Rm(id)
+    {
+        RemoveFile(id, sHash, function(data)
+        {
+            if (data.result === "success")
+            {
+                $("#fl" + data.file.id).fadeOut();
+            }
+        });
+    }
+
+    function RmDir(id)
+    {
+        RemoveDir(id, sHash, function(data)
+        {
+            if (data.result === "success")
+            {
+                $("#dir" + id).fadeOut();
+            }
+        });
+    }
+
+    function Pub(id)
+    {
+        PubFile(id, sHash, "1", function(data)
+        {
+            if (data.result === "success")
+            {
+                RefreshFile(data.file);
+            }
+        });
+    }
+
+    function Depub(id)
+    {
+        PubFile(id, sHash, "0", function(data)
+        {
+            if (data.result === "success")
+            {
+                RefreshFile(data.file);
+            }
+        });
+    }
+
+    function Dl(id)
+    {
+        DownloadFile(id, sHash);
+    }
+
+    function Ls(id)
+    {
+        QueryDir(id, sHash, Recieve);
+    }
+
+    function LO()
+    {
+        LogOut(sHash, function()
+        {
+            $("#webCFS").fadeOut("slow", function()
+            {
+               $("#intro").fadeIn("fast");                
+            });
+
+            window.history.pushState("loggedout", "Title", "index.html");
+            $("#lo").slideUp();
+        });
+    }
+
+    function Info(fileID)
+    {
+        File(fileID, sHash, function(data)
+        {
+            $("#infoModal").html(itemplate(data.file));
+            $("#infoModal").modal("show");
+        });
+    }
+
+    function Stat(fileID)
+    {
+        Stats(fileID, sHash, function(data)
+        {
+            $("#infoModal").html(fstemplate(data.stats));
+            $("#infoModal").modal("show");
+        });
+    }
+
+    var buffer = [];
+    var dirbuffer = [];
+    function Mv(fileID)
+    {
+        if ($.inArray(fileID, buffer) == - 1)
+        {
+
+            buffer.push(fileID);
+        }
+        $("#fl" + fileID + " .mvbtn").removeClass("btn-primary");
+        $("#fl" + fileID + " .mvbtn").addClass("btn-warning");
+        $("#fl" + fileID + " .mvbtn").attr("onclick", "DMv(" + fileID + ")");
+    }
+
+    function MvDir(dirID)
+    {
+        if ($.inArray(dirID, dirbuffer) == - 1)
+        {
+            dirbuffer.push(dirID);
+        }
+        $("#dir" + dirID + " .mvbtn").removeClass("btn-primary");
+        $("#dir" + dirID + " .mvbtn").addClass("btn-warning");
+        $("#dir" + dirID + " .mvbtn").attr("onclick", "DMvDir(" + dirID + ")");
+    }
+
+    function DMvDir(dirID)
+    {
+        var index = dirbuffer.indexOf(dirID);
+        if (index > - 1) {
+            dirbuffer.splice(index, 1);
+            $("#dir" + dirID + " .mvbtn").removeClass("btn-warning");
+            $("#dir" + dirID + " .mvbtn").addClass("btn-primary");
+            $("#dir" + dirID + " .mvbtn").attr("onclick", "MvDir(" + dirID + ")");
+        }
+    }
+
+    function DMv(fileID)
+    {
+        var index = buffer.indexOf(fileID);
+        if (index > - 1) {
+            buffer.splice(index, 1);
+            $("#fl" + fileID + " .mvbtn").removeClass("btn-warning");
+            $("#fl" + fileID + " .mvbtn").addClass("btn-primary");
+            $("#fl" + fileID + " .mvbtn").attr("onclick", "Mv(" + fileID + ")");
+        }
+    }
+
+    function MvD()
+    {
+        for (i = 0; i < buffer.length; i++) {
+            MoveFile(buffer[i], curDir, sHash, function(data)
+            {
+                Ls(curDir);
+            });
+        }
+        for (i = 0; i < dirbuffer.length; i++) {
+            MoveDir(dirbuffer[i], curDir, sHash, function(data)
+            {
+                Ls(curDir);
+            });
+        }
+        buffer = [];
+        dirbuffer = [];
+    }
+    </script>
+    <script id="dir-template" type="text/x-handlebars-template">            
+    {{#each dirs}}
+    <tr id="dir{{this.id}}">
+    <td>
+    {{this.id}}
+    </td>
+    <td>
+    {{this.isim}}
+    </td>
+    <td>
+    </td>    
+    <td>
+    <button onclick="Ls({{this.id}})" type="button" class="btn btn-success btn-sm">
+    <span class="glyphicon glyphicon-folder-open"></span>
+    </button>
+    <button onclick="RmDir({{id}})" type="button" class="btn btn-danger btn-sm">
+    <span class="glyphicon glyphicon-trash"></span>
+    </button>
+    <button  onclick="MvDir({{this.id}})" type="button" class="pub btn btn-primary btn-sm mvbtn">
+    <span class="glyphicon glyphicon-move"></span>
+    </button>
+    </td>
+    </tr>
+    {{/each}}
+    </script>
+    <script id="last-file-template" type="text/x-handlebars-template">
+    <tr id="fl{{id}}" style="background-color:yellow">
+    <td width="10%">
+    {{id}}
+    </td>
+    <td width="40%">
+    {{title}}
+    </td>
+    <td width="20%">
+    {{size}}
+    </td>    
+    <td width="30%">
+    {{#if this.pub}}
+    <button onclick="Depub({{id}})" type="button" class="depub btn btn-danger btn-sm">
+    <span class="glyphicon glyphicon-send"></span>
+    </button>
+    {{else}}    
+    <button  onclick="Pub({{id}})" type="button" class="pub btn btn-primary btn-sm">
+    <span class="glyphicon glyphicon-send"></span>
+    </button>
+    {{/if}}
+    <button onclick="Dl({{id}})" type="button" class="btn btn-success btn-sm">
+    <span class="glyphicon glyphicon-download-alt"></span>
+    </button>
+    <button onclick="Rm({{id}})" type="button" class="btn btn-danger btn-sm">
+    <span class="glyphicon glyphicon-trash"></span>
+    </button>
+    <button  onclick="Info({{id}})" type="button" class="pub btn btn-primary btn-sm">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    </button>
+    </td>
+    </tr>
+    </script>
+    <script id="file-template" type="text/x-handlebars-template">
+    {{#each files}}
+    <tr id="fl{{this.id}}">
+    <td width="10%">
+    {{this.id}}
+    </td>
+    <td width="40%">
+    {{this.title}}
+    </td>
+    <td width="20%">
+    {{this.size}}
+    </td>    
+    <td width="30%">
+    {{#if this.pub}}
+    <button onclick="Depub({{this.id}})" type="button" class="depub btn btn-danger btn-sm">
+    <span class="glyphicon glyphicon-send"></span>
+    </button>
+    {{else}}    
+    <button  onclick="Pub({{this.id}})" type="button" class="pub btn btn-primary btn-sm">
+    <span class="glyphicon glyphicon-send"></span>
+    </button>    
+    {{/if}}            
+    <button onclick="Dl({{this.id}})" type="button" class="btn btn-success btn-sm">
+    <span class="glyphicon glyphicon-download-alt"></span>
+    </button>
+    <button onclick="Rm({{this.id}})" type="button" class="btn btn-danger btn-sm">
+    <span class="glyphicon glyphicon-trash"></span>
+    </button>
+    <button  onclick="Mv({{this.id}})" type="button" class="pub btn btn-primary btn-sm mvbtn">
+    <span class="glyphicon glyphicon-move"></span>
+    </button>
+    <button  onclick="Info({{this.id}})" type="button" class="pub btn btn-primary btn-sm">
+    <span class="glyphicon glyphicon-info-sign"></span>
+    </button> 
+    </td>
+    </tr>
+    {{/each}}
+    </script>
+
+    <script id="base-template" type="text/x-handlebars-template">
+    <tr>
+    <td>
+    ID
+    </td>
+    <td>
+    Title
+    </td>
+    <td>
+    Size
+    </td>
+    <td>
+    Actions
+    </td>
+    </tr>
+    </script>
+    <script id="file-info-template" type="text/x-handlebars-template">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title">Detailed File Info: {{title}}</h4>
+    </div>
+    <div class="modal-body">
+    <b>ID:</b> {{id}}<br />
+    <b>Size:</b> {{size}}<br />
+    <b>Public:</b> {{#unless pub}}<span class="glyphicon glyphicon-thumbs-down"></span>{{else}}<span class="glyphicon glyphicon-thumbs-up"></span><br />
+    <b>Public URL:</b> <a href="{{path}}">{{path}}</a><br />{{/unless}}
+    <b>File Name:</b> {{name}}<br />
+    <b>Upload Time:</b> {{utime}}<br />
+    <b>Navigate To Directory:</b><button onclick="Ls({{dir}})" type="button" class="btn btn-success btn-sm" data-dismiss="modal"><span class="glyphicon glyphicon-folder-open"></span></button><hr />
+    <b>Download Statistics:</b> <button onclick="Stat({{id}})" type="button" class="btn btn-success btn-sm" data-dismiss="modal"><span class="glyphicon glyphicon-cloud-download"></span></button>
+    </div>
+    </div>
+    </div>
+    </script>
+
+    <script id="file-stats-template" type="text/x-handlebars-template">
+    <div class = "modal-dialog" >
+    <div class = "modal-content" >
+    <div class = "modal-header" >
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class = "modal-title" > Download Statistics </h4>
+    </div>
+    <div class = "modal-body" >
+    <b> Download Count: </b> {{count}}<br / >
+    <b> Last Up To 10 Downloads: </b><br / >
+    {{#each latest}}
+    <b> On </b> {{this.time}}, <b>From</b > {{this.ip}} <br / >
+    {{/each}}
+    </div>
+    </div>
+    </div>
