@@ -15,3 +15,11 @@ tr
     height: 30px;
     background-color:white;
 }
+
+#drop
+{
+    border: #269abc dashed thick;
+    text-align: center;
+    font-size: xx-large;
+    color: #c0c0c0;
+}

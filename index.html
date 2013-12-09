@@ -1,67 +1,75 @@
 
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="../../assets/ico/favicon.png">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="shortcut icon" href="../../assets/ico/favicon.png">
 
-    <title>Cloud File System</title>
+        <title>Cloud File System</title>
 
-    <script src="js/API.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/handlebars.min.js"></script>
+        <script src="js/API.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/handlebars.min.js"></script>
+        <script src="js/dropzone.js"></script>
 
-    <link href="css/bootstrap.css" rel="stylesheet">
-    <link href="css/jumbotron-narrow.css" rel="stylesheet">
-    <link href="css/files.css" rel="stylesheet">
-</head>
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/jumbotron-narrow.css" rel="stylesheet">
+        <link href="css/files.css" rel="stylesheet">
+        <link href="css/dropzone.css" rel="stylesheet">
+    </head>
 
-<body>
-    <div class="container">
-        <div class="header">
-            <ul class="nav nav-pills pull-right">
-                <li class="active"><a href="#">Web CFS</a></li>
-                <li id="lo" style="display: none"><a href="#" onclick="LO()">Logout</a></li>
-            </ul>
-            <h3 class="text-muted">Cloud File System</h3>
-        </div>
-        
-        <div class="jumbotron" id="intro">
-        <h1>Personal Cloud File Storage</h1>
-        <p class="lead">A Minimalist, Secure And Personal File Storage Service Which Only Needs PHP!</p>
-        <p><a class="btn btn-lg btn-success" href="#" onclick="login()">Log In</a> <a class="btn btn-lg btn-success" onclick="signUp()">Sign Up</a></p>
-      </div>
+    <body>
+        <div class="container">
+            <div class="header">
+                <ul class="nav nav-pills pull-right">
+                    <li class="active"><a href="#">Web CFS</a></li>
+                    <li id="lo" style="display: none"><a href="#" onclick="LO()">Logout</a></li>
+                </ul>
+                <h3 class="text-muted">Cloud File System</h3>
+            </div>
 
-        <div id="webCFS" class="panel panel-default" style="display: none">
-            <div class="panel-heading">Your CFS</div>
-            <div class="panel-body" style="font-weight: bold">Last File</div>
-            <table id="last" class="table"></table>
-            <div class="panel-body" style="font-weight: bold; background-color: #fcf8e3"><div id="dir-title" style="float: left; vertical-align: bottom"></div> 
-            <div style="float: right"><button onclick="MvD()" type="button" class="btn btn-success btn-sm" data-dismiss="modal"><span class="glyphicon glyphicon-move"></span> Move Buffer Here</button></div></div>
-            <table id="list" class="table"></table>
-        </div>
+            <div class="jumbotron" id="intro">
+                <h1>Personal Cloud File Storage</h1>
+                <p class="lead">A Minimalist, Secure And Personal File Storage Service Which Only Needs PHP!</p>
+                <p><a class="btn btn-lg btn-success" href="#" onclick="login()">Log In</a> <a class="btn btn-lg btn-success" onclick="signUp()">Sign Up</a></p>
+            </div>
 
-        <div class="footer">
-            <p>&copy; Fatih BAKIR</p>
-            <p><a class="btn btn-lg btn-primary" href="https://github.com/FatihBAKIR/CFS"><img src="http://www.iconsdb.com/icons/preview/white/github-9-xxl.png" width="28px" /> Desktop Client Source</a>
-            <a class="btn btn-lg btn-primary" href="http://indir.fatihbakir.net/dosya/210/CFSWin-zip"><img src="https://cdn1.iconfinder.com/data/icons/ourea-icons/256/OS_Windows_8_256x256-32.png" width="28px" /> Windows Client</a></p>
-        </div>
+            <div id="webCFS" class="panel panel-default" style="display: none">
+                <div class="panel-heading">Your CFS</div>
+                <div class="panel-body" style="font-weight: bold">Last File</div>
+                <table id="last" class="table"></table>
+                <div class="panel-body" style="font-weight: bold; background-color: #fcf8e3"><div id="dir-title" style="float: left; vertical-align: bottom"></div> 
+                    <div style="float: right"><button onclick="Push()" type="button" class="btn btn-success btn-sm" data-dismiss="modal"><span class="glyphicon glyphicon-cloud-upload"></span> Push New File</button>
+                        <button onclick="MvD()" type="button" class="btn btn-success btn-sm" data-dismiss="modal"><span class="glyphicon glyphicon-move"></span> Move Buffer Here</button>
+                    </div></div>
+                <table id="list" class="table"></table>
 
-    </div> <!-- /container -->
+            </div>
 
-    <div id="loginModal" class="modal"></div>
-    <div id="signupModal" class="modal"></div>
-    <div id="infoModal" class="modal"></div>
+            <div class="footer">
+                <p>&copy; Fatih BAKIR</p>
+                <p><a class="btn btn-lg btn-primary" href="https://github.com/FatihBAKIR/CFS"><img src="http://www.iconsdb.com/icons/preview/white/github-9-xxl.png" width="28px" /> Desktop Client Source</a>
+                    <a class="btn btn-lg btn-primary" href="https://github.com/FatihBAKIR/WebCFS"><img src="http://www.iconsdb.com/icons/preview/white/github-9-xxl.png" width="28px" /> Web Client Source</a>
+                    <a class="btn btn-lg btn-primary" href="http://indir.fatihbakir.net/dosya/210/CFSWin-zip"><img src="https://cdn1.iconfinder.com/data/icons/ourea-icons/256/OS_Windows_8_256x256-32.png" width="28px" /> Windows Client</a></p>
+            </div>
+
+        </div> <!-- /container -->
+
+        <div id="loginModal" class="modal"></div>
+        <div id="signupModal" class="modal"></div>
+        <div id="infoModal" class="modal"></div>
+        <div id="pushModal" class="modal"></div>
 
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
     </body>
-    </html>
-    <script type="text/javascript">
+</html>
+<script type="text/javascript">
+
     function getUrlVars() {
         var vars = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
@@ -88,7 +96,7 @@
             })
         });
     }
-    
+
     function signUp()
     {
         $('#signupModal').modal('show');
@@ -110,9 +118,9 @@
             })
         });
     }
-    
+
     var curDir = 0;
-    var dtemplate, ftemplate, btemplate, lftemplate, itemplate, fstemplate;
+    var dtemplate, ftemplate, btemplate, lftemplate, itemplate, fstemplate, ptemplate;
     $(function() {
         $("#loginModal").load("login.html");
         $("#signupModal").load("signup.html");
@@ -123,22 +131,28 @@
             Ready();
         }
     });
+
     function Ready()
     {
         $("#intro").fadeOut("slow", function()
         {
-           $("#webCFS").fadeIn("fast"); 
+            $("#webCFS").fadeIn("fast");
         });
         if (getUrlVars()["dir"] != null)
             Ls(getUrlVars()["dir"]);
         else
             Ls(0);
+        UpdateLast();
+        $("#lo").slideDown();
+    }
+    
+    function UpdateLast()
+    {        
         LastFile(sHash, function(data)
         {
             $("#last").html("");
             $("#last").append(lftemplate(data.file));
         });
-        $("#lo").slideDown();
     }
 
     var sHash;
@@ -148,6 +162,7 @@
         dtemplate = Handlebars.compile($("#dir-template").html());
         itemplate = Handlebars.compile($("#file-info-template").html());
         fstemplate = Handlebars.compile($("#file-stats-template").html());
+        ptemplate = Handlebars.compile($("#push-template").html());
         btemplate = $("#base-template").html();
     }
 
@@ -170,15 +185,15 @@
             for (i = 0; i < dirbuffer.length; i++) {
                 MvDir(dirbuffer[i]);
             }
+            $("#my-awesome-dropzone").attr("action", GetPushAction(sHash, curDir));
         }
-
     }
 
     function RefreshFile(data)
     {
-        $("#fl" + data.id).fadeOut("slow", function()
+        $(".fl" + data.id).fadeOut("slow", function()
         {
-            $("#fl" + data.id).remove();
+            $(".fl" + data.id).remove();
             $("#list").append(ftemplate({files: [data]}));
         });
     }
@@ -189,7 +204,8 @@
         {
             if (data.result === "success")
             {
-                $("#fl" + data.file.id).fadeOut();
+                $(".fl" + data.file.id).fadeOut();
+                UpdateLast();
             }
         });
     }
@@ -201,6 +217,7 @@
             if (data.result === "success")
             {
                 $("#dir" + id).fadeOut();
+                UpdateLast();
             }
         });
     }
@@ -243,7 +260,7 @@
         {
             $("#webCFS").fadeOut("slow", function()
             {
-               $("#intro").fadeIn("fast");                
+                $("#intro").fadeIn("fast");
             });
 
             window.history.pushState("loggedout", "Title", "index.html");
@@ -273,19 +290,19 @@
     var dirbuffer = [];
     function Mv(fileID)
     {
-        if ($.inArray(fileID, buffer) == - 1)
+        if ($.inArray(fileID, buffer) == -1)
         {
 
             buffer.push(fileID);
         }
-        $("#fl" + fileID + " .mvbtn").removeClass("btn-primary");
-        $("#fl" + fileID + " .mvbtn").addClass("btn-warning");
-        $("#fl" + fileID + " .mvbtn").attr("onclick", "DMv(" + fileID + ")");
+        $(".fl" + fileID + " .mvbtn").removeClass("btn-primary");
+        $(".fl" + fileID + " .mvbtn").addClass("btn-warning");
+        $(".fl" + fileID + " .mvbtn").attr("onclick", "DMv(" + fileID + ")");
     }
 
     function MvDir(dirID)
     {
-        if ($.inArray(dirID, dirbuffer) == - 1)
+        if ($.inArray(dirID, dirbuffer) == -1)
         {
             dirbuffer.push(dirID);
         }
@@ -297,7 +314,7 @@
     function DMvDir(dirID)
     {
         var index = dirbuffer.indexOf(dirID);
-        if (index > - 1) {
+        if (index > -1) {
             dirbuffer.splice(index, 1);
             $("#dir" + dirID + " .mvbtn").removeClass("btn-warning");
             $("#dir" + dirID + " .mvbtn").addClass("btn-primary");
@@ -308,11 +325,11 @@
     function DMv(fileID)
     {
         var index = buffer.indexOf(fileID);
-        if (index > - 1) {
+        if (index > -1) {
             buffer.splice(index, 1);
-            $("#fl" + fileID + " .mvbtn").removeClass("btn-warning");
-            $("#fl" + fileID + " .mvbtn").addClass("btn-primary");
-            $("#fl" + fileID + " .mvbtn").attr("onclick", "Mv(" + fileID + ")");
+            $(".fl" + fileID + " .mvbtn").removeClass("btn-warning");
+            $(".fl" + fileID + " .mvbtn").addClass("btn-primary");
+            $(".fl" + fileID + " .mvbtn").attr("onclick", "Mv(" + fileID + ")");
         }
     }
 
@@ -333,8 +350,61 @@
         buffer = [];
         dirbuffer = [];
     }
-    </script>
-    <script id="dir-template" type="text/x-handlebars-template">            
+
+    function Push()
+    {
+        $("#pushModal").html(ptemplate({SH: sHash, dir: curDir, push_link: GetPushAction(sHash, curDir)}));
+        $("#pushModal").modal("show");
+        
+        var obj = $("#pushModal #drop");
+        obj.on('dragenter', function(e)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        obj.on('dragover', function(e)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        obj.on('drop', function(e)
+        {
+            e.preventDefault();
+            var files = e.originalEvent.dataTransfer.files;
+
+            for (var i = 0; i < files.length; i++) 
+            {
+                 var fd = new FormData();
+                 fd.append('file', files[i]);
+                 $("#drag").html("Uploading...");
+                 PushFile(fd, sHash, curDir, function(data)
+                 {
+                     Ls(curDir);
+                     $("#pushModal").modal("hide");
+                     UpdateLast();
+                 });
+            }
+            
+        });
+        $(document).on('dragenter', function(e)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        $(document).on('dragover', function(e)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        $(document).on('drop', function(e)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+    }
+
+</script>
+<script id="dir-template" type="text/x-handlebars-template">            
     {{#each dirs}}
     <tr id="dir{{this.id}}">
     <td>
@@ -358,9 +428,9 @@
     </td>
     </tr>
     {{/each}}
-    </script>
-    <script id="last-file-template" type="text/x-handlebars-template">
-    <tr id="fl{{id}}" style="background-color:yellow">
+</script>
+<script id="last-file-template" type="text/x-handlebars-template">
+    <tr class="fl{{id}}" style="background-color:yellow">
     <td width="10%">
     {{id}}
     </td>
@@ -391,10 +461,10 @@
     </button>
     </td>
     </tr>
-    </script>
-    <script id="file-template" type="text/x-handlebars-template">
+</script>
+<script id="file-template" type="text/x-handlebars-template">
     {{#each files}}
-    <tr id="fl{{this.id}}">
+    <tr class="fl{{this.id}}">
     <td width="10%">
     {{this.id}}
     </td>
@@ -429,9 +499,9 @@
     </td>
     </tr>
     {{/each}}
-    </script>
+</script>
 
-    <script id="base-template" type="text/x-handlebars-template">
+<script id="base-template" type="text/x-handlebars-template">
     <tr>
     <td>
     ID
@@ -446,8 +516,8 @@
     Actions
     </td>
     </tr>
-    </script>
-    <script id="file-info-template" type="text/x-handlebars-template">
+</script>
+<script id="file-info-template" type="text/x-handlebars-template">
     <div class="modal-dialog">
     <div class="modal-content">
     <div class="modal-header">
@@ -466,21 +536,39 @@
     </div>
     </div>
     </div>
-    </script>
+</script>
 
-    <script id="file-stats-template" type="text/x-handlebars-template">
+<script id="file-stats-template" type="text/x-handlebars-template">
+<div class = "modal-dialog" >
+<div class = "modal-content" >
+<div class = "modal-header" >
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+<h4 class = "modal-title" > Download Statistics </h4>
+</div>
+<div class = "modal-body" >
+<b> Download Count: </b> {{count}}<br / >
+<b> Last Up To 10 Downloads: </b><br / >
+{{#each latest}}
+<b> On </b> {{this.time}}, <b>From</b > {{this.ip}} <br / >
+{{/each}}
+</div>
+</div>
+</div>
+</script>
+
+<script id="push-template" type="text/x-handlebars-template">"
     <div class = "modal-dialog" >
     <div class = "modal-content" >
     <div class = "modal-header" >
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h4 class = "modal-title" > Download Statistics </h4>
+    <h4 class = "modal-title" > Push New File </h4>
     </div>
-    <div class = "modal-body" >
-    <b> Download Count: </b> {{count}}<br / >
-    <b> Last Up To 10 Downloads: </b><br / >
-    {{#each latest}}
-    <b> On </b> {{this.time}}, <b>From</b > {{this.ip}} <br / >
-    {{/each}}
+    <div class = "modal-body" id="drop" style="min-height:400px" >
+    Drag And Drop
     </div>
+    <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>        
     </div>
-    </div>
+</script>

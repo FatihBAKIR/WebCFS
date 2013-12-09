@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-var server_url = "http://cfs.fatihbakir.net/api";
+var server_url = "http://indir.fatihbakir.net/api";
 
 function QueryDir(dirID, sHash, callback)
 {
@@ -164,6 +164,29 @@ function MoveDir(dirID, destID, sHash, callback)
         data: {SH: sHash, id:dirID, dir: destID},
         cache: false,
         success: function(html) {
+            html = JSON.parse(html);
+            callback(html);
+        }
+    });
+}
+
+function GetPushAction(sHash, dir)
+{
+    return server_url + "/push.php?SH=" + sHash + "&dir=" + dir;
+}
+
+function PushFile(formData, sHash, dir, callback)
+{
+    var uploadURL = GetPushAction(sHash, dir);
+    
+    $.ajax({
+    url: uploadURL,
+    type: "POST",
+    contentType:false,
+    processData: false,
+        cache: false,
+        data: formData,
+        success:  function(html) {
             html = JSON.parse(html);
             callback(html);
         }
